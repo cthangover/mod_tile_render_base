@@ -1,0 +1,17 @@
+{
+  "id": "tile_render_base",
+  "name": "Tile Rendering",
+  "version": "1.0.0",
+  "author": "ct",
+  "description": "The shared engine behind tile maps: turns a prepared map description into a picture; the viewing angle is a small renderer mod on top.",
+  "category": "visual, engine",
+  "sources": [
+    "src/**/*.cs"
+  ],
+  "test_sources": [
+    "tests/*.cs"
+  ],
+  "depends": [
+    "ui_base>=1"
+  ]
+}

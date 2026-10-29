@@ -1,0 +1,14 @@
+{
+  "settings": [
+    {
+      "key": "tile.renderer",
+      "name": "collection_settings/projection",
+      "description": "collection_settings/projection_hint",
+      "group": "collection_settings/world_group",
+      "type": "choice",
+      "source": null,
+      "allow_custom": false,
+      "automatic": null
+    }
+  ]
+}
