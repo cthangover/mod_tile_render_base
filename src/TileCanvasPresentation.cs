@@ -163,7 +163,11 @@ namespace Cthangover.Mods.TileRender
             var focus = TileDrawing.Project(projection, frame.Focus) * Scale.X;
             var target = new Vector2(Axis(viewport.X, bounds.Position.X * Scale.X, bounds.End.X * Scale.X, focus.X),
                 Axis(viewport.Y, bounds.Position.Y * Scale.Y, bounds.End.Y * Scale.Y, focus.Y));
-            Position = delta <= 0 ? target : Position.Lerp(target, 1f - Mathf.Exp(-(float)delta * 14f)).Round();
+            // Keep subpixel precision throughout the chase: feeding rounded pixels back
+            // into interpolation stalls short movements at high frame rates.
+            Position = delta <= 0 ? target : Position.Lerp(target, 1f - Mathf.Exp(-(float)delta * 20f));
+            if (Position.DistanceSquaredTo(target) <= 0.01f)
+                Position = target;
             UpdateLight(frame);
             effects.Present(frame.InteractionCell, delta);
         }
@@ -237,7 +241,7 @@ namespace Cthangover.Mods.TileRender
         }
 
         private static float Axis(float screen, float start, float end, float focus)
-            => Mathf.Round(end - start <= screen ? (screen - start - end) / 2f
-                : Mathf.Clamp(screen / 2f - focus, screen - end, -start));
+            => end - start <= screen ? (screen - start - end) / 2f
+                : Mathf.Clamp(screen / 2f - focus, screen - end, -start);
     }
 }
