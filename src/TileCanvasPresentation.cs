@@ -99,10 +99,14 @@ namespace Cthangover.Mods.TileRender
                 if (!string.IsNullOrEmpty(visual.Only) && visual.Only != factory.Id) continue;
                 var placement = projection.Place(visual);
                 bounds = bounds.Merge(placement.Bounds);
-                if (placement.DepthSorted)
+                if (placement.DepthSorted || visual.DrawOrder.HasValue)
                 {
                     var sprite = new TileCanvasSprite(projection) { UseParentMaterial = true };
-                    (visual.Layer == 2 ? layers[2] : actors).AddChild(sprite);
+                    var parent = visual.DrawOrder == TileDrawOrder.BelowCharacters ? layers[0]
+                        : visual.DrawOrder == TileDrawOrder.AboveCharacters ? layers[2]
+                        : visual.DrawOrder == TileDrawOrder.ByPosition ? actors
+                        : visual.Layer == 2 ? layers[2] : actors;
+                    parent.AddChild(sprite);
                     sprite.SetStatic(visual);
                     props.Add(sprite);
                 }
@@ -174,6 +178,9 @@ namespace Cthangover.Mods.TileRender
 
         private void UpdateLight(TileFrame frame)
         {
+            SharedMaterial.SetShaderParameter("portable_position", frame.PortableLight?.Position ?? new Vector2(-1000, -1000));
+            SharedMaterial.SetShaderParameter("portable_color", frame.PortableLight?.Color ?? new Color(0, 0, 0, 0));
+            SharedMaterial.SetShaderParameter("portable_radius", frame.PortableLight?.Radius ?? 0);
             SharedMaterial.SetShaderParameter("time_weights", frame.TimeWeights);
             SharedMaterial.SetShaderParameter("use_ambient", frame.Ambient.HasValue);
             SharedMaterial.SetShaderParameter("ambient_color", frame.Ambient ?? Colors.White);

@@ -53,7 +53,8 @@ namespace Cthangover.Mods.TileRender
                 LastBuiltChunks++;
             }
             previous = new TileSurfaceField { Width = field.Width, Height = field.Height, TileSize = field.TileSize,
-                PatchSize = field.PatchSize, Materials = (int[])field.Materials.Clone(), Diffuse = (bool[])field.Diffuse.Clone() };
+                PatchSize = field.PatchSize, Materials = (int[])field.Materials.Clone(), Diffuse = (bool[])field.Diffuse.Clone(),
+                DiffuseStrength = field.DiffuseStrength == null ? null : (int[])field.DiffuseStrength.Clone() };
             TextureBytes = 0;
             foreach (var chunk in chunks.Values) TextureBytes += (long)chunk.Cells.Size.X * chunk.Cells.Size.Y * field.TileSize * field.TileSize * 4;
         }
@@ -64,7 +65,8 @@ namespace Cthangover.Mods.TileRender
             for (var x = Math.Max(0, rect.Position.X - 1); x < Math.Min(field.Width, rect.End.X + 1); x++)
             {
                 var i = y * field.Width + x;
-                if (field.Materials[i] != previous.Materials[i] || field.Diffuse[i] != previous.Diffuse[i]) return true;
+                if (field.Materials[i] != previous.Materials[i] || field.Diffuse[i] != previous.Diffuse[i] ||
+                    field.StrengthAt(i) != previous.StrengthAt(i)) return true;
             }
             return false;
         }

@@ -9,7 +9,7 @@ Tile Rendering 负责绘制图块地图。它接收一份准备好的地图描�
 ## 分工
 
 ```text
- content mods            maps, tilesets, events, characters (rpg_demo_game, village_pack…)
+ content mods            maps, tilesets, events, characters (rpg_plus_game, village_pack…)
       │
  RPG mod (rpg)           walking, collisions, events, the camera target, lighting rules
       │  prepares a "render scene": visuals in cell space, lights, the current frame

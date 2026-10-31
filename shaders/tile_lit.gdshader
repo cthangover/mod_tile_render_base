@@ -20,6 +20,9 @@ uniform vec2 light_positions[16];
 uniform vec4 light_colors[16];
 uniform float light_radii[16];
 uniform int light_count = 0;
+uniform vec2 portable_position = vec2(-1000.0);
+uniform vec4 portable_color : source_color = vec4(0.0);
+uniform float portable_radius = 0.0;
 
 uniform vec2 cell_x = vec2(1.0, 0.0);
 uniform vec2 cell_y = vec2(0.0, 1.0);
@@ -39,7 +42,8 @@ void fragment() {
 			+ evening_color * time_weights.z + night_color * time_weights.w).rgb;
 
 	vec2 cell = vec2(dot(world_pos, cell_x), dot(world_pos, cell_y)) + cell_offset;
-	vec3 light = vec3(0.0);
+	float portable = clamp(1.0 - distance(world_pos, portable_position) / max(portable_radius, 0.001), 0.0, 1.0);
+	vec3 light = portable_color.rgb * portable_color.a * portable * portable;
 	for (int i = 0; i < 16; i++) {
 		if (i >= light_count)
 			break;

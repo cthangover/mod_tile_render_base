@@ -14,6 +14,7 @@ namespace Cthangover.Mods.TileRender
             var patch = field.PatchSize;
             if (size <= 0 || patch <= 0 || atlasWidth < patch || atlas.Length < atlasWidth * patch * 4 ||
                 field.Materials.Length != field.Width * field.Height || field.Diffuse.Length != field.Materials.Length ||
+                (field.DiffuseStrength != null && field.DiffuseStrength.Length != field.Materials.Length) ||
                 cells.Position.X < 0 || cells.Position.Y < 0 || cells.End.X > field.Width || cells.End.Y > field.Height)
                 throw new ArgumentException("Invalid surface field, atlas or region.");
             var width = cells.Size.X * size;
@@ -56,11 +57,18 @@ namespace Cthangover.Mods.TileRender
                     var material = field.Materials[index];
                     if (material < 0 || ((dx != 0 || dy != 0) && (!field.Diffuse[own] || !field.Diffuse[index]))) continue;
                     if ((material + 1) * patch > atlasWidth) throw new ArgumentException("Surface index is outside the atlas.");
-                    var px = x + 0.5f + noise;
-                    var py = y + 0.5f + noise;
+                    // A source cell keeps the same kernel on either side of a cell/chunk boundary.
+                    // Even level 3 stays within the existing one-cell halo.
+                    var strength = field.StrengthAt(index) / 2f;
+                    var blendRadius = radius * strength;
+                    // Do not amplify the displacement beyond the original noise: small
+                    // cells must retain an own sample even when hard edges exclude neighbours.
+                    var displacement = noise * Math.Min(strength, 1f);
+                    var px = x + 0.5f + displacement;
+                    var py = y + 0.5f + displacement;
                     var distanceX = Math.Min(px - nx * size, (nx + 1) * size - px);
                     var distanceY = Math.Min(py - ny * size, (ny + 1) * size - py);
-                    var weight = Smooth(0.5f + distanceX / (2 * radius)) * Smooth(0.5f + distanceY / (2 * radius));
+                    var weight = Smooth(0.5f + distanceX / (2 * blendRadius)) * Smooth(0.5f + distanceY / (2 * blendRadius));
                     if (weight <= 0) continue;
                     var offset = ((y % patch) * atlasWidth + material * patch + x % patch) * 4;
                     red += atlas[offset] * weight; green += atlas[offset + 1] * weight;

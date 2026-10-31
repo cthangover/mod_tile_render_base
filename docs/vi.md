@@ -9,7 +9,7 @@ Bạn không dùng trực tiếp mod này. Nó nằm trong mọi game có bản 
 ## Ai làm gì
 
 ```text
- content mods            maps, tilesets, events, characters (rpg_demo_game, village_pack…)
+ content mods            maps, tilesets, events, characters (rpg_plus_game, village_pack…)
       │
  RPG mod (rpg)           walking, collisions, events, the camera target, lighting rules
       │  prepares a "render scene": visuals in cell space, lights, the current frame

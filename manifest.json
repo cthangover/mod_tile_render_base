@@ -12,6 +12,7 @@
     "tests/*.cs"
   ],
   "depends": [
-    "ui_base>=1"
+    "ui_base>=1",
+    "effects_base>=1"
   ]
 }

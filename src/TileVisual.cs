@@ -5,6 +5,9 @@ namespace Cthangover.Mods.TileRender
     /// <summary>A resolved image region in cell space. Texture pixels are never gameplay geometry.</summary>
     public class TileVisual
     {
+        /// <summary>Null preserves legacy ordering. SortAnchor affects depth only; it never moves the image.</summary>
+        public TileDrawOrder? DrawOrder { get; set; }
+        public Vector2? SortAnchor { get; set; }
         public string Id { get; set; }
         public Texture2D Texture { get; set; }
         public Rect2 Source { get; set; }

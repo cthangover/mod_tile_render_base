@@ -34,6 +34,15 @@ namespace Cthangover.Mods.TileRender.Tests
             field.Materials[0] = 1;
             cache.Update(field, texture);
             ModAssert.Equal(1, cache.LastBuiltChunks, "interior edit regenerates only one chunk");
+            field.DiffuseStrength = Enumerable.Repeat(2, field.Width * field.Height).ToArray();
+            cache.Update(field, texture);
+            ModAssert.Equal(0, cache.LastBuiltChunks, "explicit level 2 reuses legacy textures");
+            field.DiffuseStrength[31] = 3;
+            cache.Update(field, texture);
+            ModAssert.Equal(2, cache.LastBuiltChunks, "strength change invalidates both sides of chunk boundary");
+            ModAssert.True(ReferenceEquals(last, ThirdTexture(cache)), "strength preserves distant texture");
+            cache.Update(field, texture);
+            ModAssert.Equal(0, cache.LastBuiltChunks, "strength snapshot prevents redundant rebuilds");
             cache.Dispose();
             ModAssert.Equal(0, cache.TextureBytes, "explicit disposal releases the cache's budget");
         }

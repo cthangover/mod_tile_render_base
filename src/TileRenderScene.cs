@@ -11,6 +11,7 @@ namespace Cthangover.Mods.TileRender
         public int TileSize { get; set; } = 32;
         public float Zoom { get; set; } = 2;
         public string Atmosphere { get; set; }
+        public List<Cthangover.Mods.Effects.Atmosphere.AtmospherePlacement> Effects { get; set; } = new();
         public List<Vector2> Water { get; } = new();
         public List<TileVisual> Visuals { get; } = new();
         public List<Texture2D> OwnedTextures { get; } = new();

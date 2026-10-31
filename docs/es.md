@@ -9,7 +9,7 @@ Este mod no se usa directamente: forma parte de todo juego con mapas de tiles, c
 ## Quién hace qué
 
 ```text
- content mods            maps, tilesets, events, characters (rpg_demo_game, village_pack…)
+ content mods            maps, tilesets, events, characters (rpg_plus_game, village_pack…)
       │
  RPG mod (rpg)           walking, collisions, events, the camera target, lighting rules
       │  prepares a "render scene": visuals in cell space, lights, the current frame
