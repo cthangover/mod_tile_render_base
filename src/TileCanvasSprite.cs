@@ -37,7 +37,7 @@ namespace Cthangover.Mods.TileRender
             shadow = pose.Charset;
             if (pose.Charset && visual.Texture != null)
             {
-                next = TileWalkSheet.Frame(visual.Texture.GetSize(), pose.Column, projection.CharsetRow(pose.Facing));
+                next = TileWalkSheet.Frame(visual.Texture, pose.Column, projection.CharsetRow(pose.Facing));
             }
             if (source != next || visual != shown || shadow != shownShadow)
             {
