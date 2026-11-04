@@ -9,7 +9,7 @@ Tile Rendering はタイルマップを描画します。用意されたマッ�
 ## 役割分担
 
 ```text
- content mods            maps, tilesets, events, characters (rpg_plus_game, village_pack…)
+ content mods            maps, objects, events, characters (rpg_plus_game, village_pack…)
       │
  RPG mod (rpg)           walking, collisions, events, the camera target, lighting rules
       │  prepares a "render scene": visuals in cell space, lights, the current frame

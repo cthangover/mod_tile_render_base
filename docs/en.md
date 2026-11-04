@@ -9,7 +9,7 @@ You do not use this mod directly. It is part of every game with tile maps, such 
 ## Who does what
 
 ```text
- content mods            maps, tilesets, events, characters (rpg_plus_game, village_pack…)
+ content mods            maps, objects, events, characters (rpg_plus_game, village_pack…)
       │
  RPG mod (rpg)           walking, collisions, events, the camera target, lighting rules
       │  prepares a "render scene": visuals in cell space, lights, the current frame

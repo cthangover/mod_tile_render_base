@@ -9,7 +9,7 @@ Tile Rendering은 타일 맵을 그립니다. 준비된 맵 묘사 — 지면, �
 ## 누가 무엇을 맡는가
 
 ```text
- content mods            maps, tilesets, events, characters (rpg_plus_game, village_pack…)
+ content mods            maps, objects, events, characters (rpg_plus_game, village_pack…)
       │
  RPG mod (rpg)           walking, collisions, events, the camera target, lighting rules
       │  prepares a "render scene": visuals in cell space, lights, the current frame
