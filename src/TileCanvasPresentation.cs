@@ -26,6 +26,7 @@ namespace Cthangover.Mods.TileRender
         private readonly Vector2[] lightPositions = new Vector2[16];
         private readonly Color[] lightColors = new Color[16];
         private readonly float[] lightRadii = new float[16];
+        private readonly int[] lightSpaces = new int[16];
         private Vector2 viewport;
         private Rect2 bounds;
         private TileCanvasEffects effects;
@@ -193,10 +194,13 @@ namespace Cthangover.Mods.TileRender
             var count = Math.Min(16, frame.Lights.Count);
             for (var i = 0; i < count; i++)
             {
-                lightPositions[i] = frame.Lights[i].Position;
-                lightColors[i] = frame.Lights[i].Color;
-                lightRadii[i] = frame.Lights[i].Radius;
+                var light = frame.Lights[i];
+                lightSpaces[i] = light.ViewSpace ? 1 : 0;
+                lightPositions[i] = light.ViewSpace ? GlobalTransform * TileDrawing.Project(projection, light.Position) : light.Position;
+                lightColors[i] = light.Color;
+                lightRadii[i] = light.ViewSpace ? light.Radius * projection.Unit * GlobalTransform.X.Length() : light.Radius;
             }
+            SharedMaterial.SetShaderParameter("light_spaces", lightSpaces);
             SharedMaterial.SetShaderParameter("light_count", count);
             SharedMaterial.SetShaderParameter("light_positions", lightPositions);
             SharedMaterial.SetShaderParameter("light_colors", lightColors);
