@@ -32,7 +32,8 @@ namespace Cthangover.Mods.TileRender
                 if (shown != null) { shown = null; QueueRedraw(); }
                 return;
             }
-            Position = TileDrawing.Project(projection, pose.Position + visual.Anchor);
+            // Only walking characters move to the projection's stand point; a dynamic prop keeps the anchor its static twin uses.
+            Position = TileDrawing.Project(projection, pose.Position + (pose.Charset ? projection.ActorAnchor(visual.Anchor) : visual.Anchor));
             var next = visual.Source;
             shadow = pose.Charset;
             if (pose.Charset && visual.Texture != null)
