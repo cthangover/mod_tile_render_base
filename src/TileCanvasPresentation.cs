@@ -9,6 +9,8 @@ namespace Cthangover.Mods.TileRender
     /// Shared canvas backend: projections live in separate implementation mods.
     /// Static ground is chunked, whole props and actors share ground-anchor sorting.
     /// Camera and light transforms are derived from the same projection used for picking.
+    /// In the game (<see cref="TileFrame.CameraOnArtwork"/>) the camera stops at the drawn artwork, not at the empty grid,
+    /// so a map drawn as one picture never scrolls into black; editors frame the whole grid.
     /// </summary>
     public partial class TileCanvasPresentation : Node2D, ITileWorldPresentation
     {
@@ -29,6 +31,8 @@ namespace Cthangover.Mods.TileRender
         private readonly int[] lightSpaces = new int[16];
         private Vector2 viewport;
         private Rect2 bounds;
+        // Where the camera may go: the union of the placed visuals (the cell polygon when none is placed).
+        private Rect2 cameraBounds;
         private TileCanvasEffects effects;
         public Node2D Root => this;
         public ShaderMaterial SharedMaterial { get; private set; }
@@ -90,6 +94,9 @@ namespace Cthangover.Mods.TileRender
             var corners = TileDrawing.CellPolygon(projection, new Rect2(Vector2.Zero, scene.Size));
             bounds = new Rect2(corners[0], Vector2.Zero);
             foreach (var point in corners) bounds = bounds.Expand(point);
+            var cellBounds = bounds;
+            var artworkBounds = new Rect2();
+            var anyPlaced = false;
             foreach (var prop in props) { prop.Release(); prop.GetParent()?.RemoveChild(prop); prop.Free(); }
             props.Clear();
             SurfaceChunkCount = 0;
@@ -100,6 +107,8 @@ namespace Cthangover.Mods.TileRender
                 if (!string.IsNullOrEmpty(visual.Only) && visual.Only != factory.Id) continue;
                 var placement = projection.Place(visual);
                 bounds = bounds.Merge(placement.Bounds);
+                artworkBounds = anyPlaced ? artworkBounds.Merge(placement.Bounds) : placement.Bounds;
+                anyPlaced = true;
                 if (placement.DepthSorted || visual.DrawOrder.HasValue)
                 {
                     var sprite = new TileCanvasSprite(projection) { UseParentMaterial = true };
@@ -119,6 +128,7 @@ namespace Cthangover.Mods.TileRender
                     if (visual.Id?.StartsWith("surface/") == true && visual.Texture != null) SurfaceChunkCount++;
                 }
             }
+            cameraBounds = anyPlaced ? artworkBounds : cellBounds;
             var obsolete = new List<(int Layer, int X, int Y)>();
             foreach (var pair in chunks) if (!nextChunks.ContainsKey(pair.Key)) obsolete.Add(pair.Key);
             foreach (var key in obsolete)
@@ -165,9 +175,12 @@ namespace Cthangover.Mods.TileRender
                 var sprite = sprites[id];
                 sprite.Release(); sprite.GetParent()?.RemoveChild(sprite); sprite.Free(); sprites.Remove(id);
             }
-            var focus = TileDrawing.Project(projection, frame.Focus) * Scale.X;
-            var target = new Vector2(Axis(viewport.X, bounds.Position.X * Scale.X, bounds.End.X * Scale.X, focus.X),
-                Axis(viewport.Y, bounds.Position.Y * Scale.Y, bounds.End.Y * Scale.Y, focus.Y));
+            var stand = TileDrawing.Project(projection, frame.Focus);
+            // The player is never lost when it walks outside the artwork.
+            var area = frame.CameraOnArtwork ? cameraBounds.Expand(stand) : bounds;
+            var focus = stand * Scale.X;
+            var target = new Vector2(Axis(viewport.X, area.Position.X * Scale.X, area.End.X * Scale.X, focus.X),
+                Axis(viewport.Y, area.Position.Y * Scale.Y, area.End.Y * Scale.Y, focus.Y));
             // Keep subpixel precision throughout the chase: feeding rounded pixels back
             // into interpolation stalls short movements at high frame rates.
             Position = delta <= 0 ? target : Position.Lerp(target, 1f - Mathf.Exp(-(float)delta * 20f));
