@@ -15,7 +15,8 @@ uniform float light_intensity : hint_range(0.0, 10.0) = 2.0;
 uniform float light_falloff : hint_range(0.0, 10.0) = 3.0;
 uniform vec4 time_weights = vec4(0.0, 1.0, 0.0, 0.0);
 
-// A map that sets its own ambient (indoors) uses it instead of the time of day.
+// A map's ambient colour tints the time of day (its daylight) instead of replacing it, so night
+// still falls and the map's lights show in the dark. Without it the time of day is used as is.
 uniform bool use_ambient = false;
 uniform vec4 ambient_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 
@@ -40,10 +41,9 @@ void vertex() {
 void fragment() {
 	vec4 color = texture(TEXTURE, UV) * COLOR;
 
-	vec3 ambient = use_ambient
-		? ambient_color.rgb
-		: (morning_color * time_weights.x + day_color * time_weights.y
-			+ evening_color * time_weights.z + night_color * time_weights.w).rgb;
+	vec3 phase = (morning_color * time_weights.x + day_color * time_weights.y
+		+ evening_color * time_weights.z + night_color * time_weights.w).rgb;
+	vec3 ambient = use_ambient ? phase * ambient_color.rgb : phase;
 
 	vec2 cell = vec2(dot(world_pos, cell_x), dot(world_pos, cell_y)) + cell_offset;
 	float portable = clamp(1.0 - distance(world_pos, portable_position) / max(portable_radius, 0.001), 0.0, 1.0);
