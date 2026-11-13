@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "ct",
   "description": "The shared engine behind tile maps: turns a prepared map description into a picture; the viewing angle is a small renderer mod on top.",
-  "category": "visual, engine",
+  "categories": ["visual", "engine"],
   "sources": [
     "src/**/*.cs"
   ],
