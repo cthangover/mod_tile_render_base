@@ -1,0 +1,10 @@
+{
+  "name": "Native equal-depth order contracts",
+  "test_sources": [
+    "tests/*.cs"
+  ],
+  "depends": [
+    "tile_topdown_base>=0.1.0",
+    "tile_isometric_base>=0.1.0"
+  ]
+}
