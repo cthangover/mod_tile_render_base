@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using Cthangover.Core.Mods.Resolvers;
-using Godot;
-
 namespace Cthangover.Mods.TileRender
 {
+    using System;
+    using System.Collections.Generic;
+    using Cthangover.Core.Mods.Resolvers;
+    using Godot;
+
     /// <summary>
     /// Shared canvas backend: projections live in separate implementation mods.
     /// Static ground is chunked, whole props and actors share ground-anchor sorting.
@@ -237,7 +237,7 @@ namespace Cthangover.Mods.TileRender
                 bounds = bounds.Merge(placement.Bounds);
                 artworkBounds = anyPlaced ? artworkBounds.Merge(placement.Bounds) : placement.Bounds;
                 anyPlaced = true;
-                if (placement.DepthSorted || visual.DrawOrder.HasValue)
+                if (placement.DepthSorted || visual.DrawOrder.HasValue || visual.VisibilityCell.HasValue)
                 {
                     var sprite = new TileCanvasSprite(projection)
                     {
@@ -245,7 +245,9 @@ namespace Cthangover.Mods.TileRender
                     };
                     var parent = visual.DrawOrder == TileDrawOrder.BelowCharacters ? layers[0]
                         : visual.DrawOrder == TileDrawOrder.AboveCharacters ? layers[2]
-                        : visual.DrawOrder == TileDrawOrder.ByPosition ? actors : visual.Layer == 2 ? layers[2] : actors;
+                        : visual.DrawOrder == TileDrawOrder.ByPosition ? actors
+                        : visual.VisibilityCell.HasValue && !placement.DepthSorted && visual.Layer == 0 ? layers[0]
+                        : visual.Layer == 2 ? layers[2] : actors;
                     parent.AddChild(sprite);
                     sprite.SetStatic(visual);
                     props.Add(sprite);

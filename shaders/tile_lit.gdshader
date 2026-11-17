@@ -32,6 +32,18 @@ uniform float portable_radius = 0.0;
 uniform vec2 cell_x = vec2(1.0, 0.0);
 uniform vec2 cell_y = vec2(0.0, 1.0);
 uniform vec2 cell_offset = vec2(0.0);
+// Optional grid knowledge supplied by a presentation adapter; absent profiles preserve the original material.
+uniform bool use_visibility_mask = false;
+uniform sampler2D visibility_mask : filter_nearest, repeat_disable;
+uniform vec2 visibility_size = vec2(1.0);
+uniform float remembered_brightness : hint_range(0.0, 1.0) = 0.3;
+instance uniform bool visibility_anchor_enabled = false;
+instance uniform vec2 visibility_anchor = vec2(0.0);
+instance uniform bool visibility_uv_enabled = false;
+instance uniform vec2 visibility_uv_origin = vec2(0.0);
+instance uniform vec2 visibility_uv_x = vec2(0.0);
+instance uniform vec2 visibility_uv_y = vec2(0.0);
+instance uniform vec4 visibility_uv_region = vec4(0.0, 0.0, 1.0, 1.0);
 varying vec2 world_pos;
 
 void vertex() {
@@ -39,7 +51,8 @@ void vertex() {
 }
 
 void fragment() {
-	vec4 color = texture(TEXTURE, UV) * COLOR;
+	// CanvasItem fragment COLOR already contains the texture and vertex modulation.
+	vec4 color = COLOR;
 
 	vec3 phase = (morning_color * time_weights.x + day_color * time_weights.y
 		+ evening_color * time_weights.z + night_color * time_weights.w).rgb;
@@ -56,5 +69,17 @@ void fragment() {
 		light += light_colors[i].rgb * light_colors[i].a * pow(k, light_falloff) * light_intensity;
 	}
 
-	COLOR = vec4(color.rgb * min(ambient + light, vec3(1.0)), color.a);
+	float knowledge = 1.0;
+	if (use_visibility_mask) {
+		vec2 visibility_cell = cell;
+		if (visibility_uv_enabled) {
+			vec2 part_uv = (UV - visibility_uv_region.xy) / visibility_uv_region.zw;
+			visibility_cell = visibility_uv_origin + part_uv.x * visibility_uv_x + part_uv.y * visibility_uv_y;
+		}
+		vec2 sample_cell = floor(visibility_anchor_enabled ? visibility_anchor : visibility_cell);
+		bool inside = all(greaterThanEqual(sample_cell, vec2(0.0))) && all(lessThan(sample_cell, visibility_size));
+		vec2 mask = inside ? texture(visibility_mask, (sample_cell + vec2(0.5)) / visibility_size).rg : vec2(0.0);
+		knowledge = mask.g > 0.5 ? 1.0 : (mask.r > 0.5 ? remembered_brightness : 0.0);
+	}
+	COLOR = vec4(color.rgb * min(ambient + light, vec3(1.0)) * knowledge, color.a);
 }
